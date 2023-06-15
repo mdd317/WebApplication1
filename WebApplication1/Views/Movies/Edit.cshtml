@@ -1,0 +1,83 @@
+﻿@model WebApplication1.Models.Movie
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Movie</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageURL" class="control-label"></label>
+                <input asp-for="ImageURL" class="form-control" />
+                <span asp-validation-for="ImageURL" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartDate" class="control-label"></label>
+                <input asp-for="StartDate" class="form-control" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label"></label>
+                <input asp-for="EndDate" class="form-control" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CinemaId" class="control-label"></label>
+                <select asp-for="CinemaId" class="form-control" asp-items="ViewBag.CinemaId"></select>
+                <span asp-validation-for="CinemaId" class="text-danger"></span>
+            </div>
+            <h4>Movie Producers</h4>
+            <div class="form-group">
+                @for (int i = 0; i < Model.Movie_Producers.Count; i++)
+                {
+                    <div class="producer-item">
+                        <input type="hidden" asp-for="Movie_Producers[i].Producer.StudioId" />
+                        <input type="hidden" asp-for="Movie_Producers[i].Producer.Id" />
+                        <label>Producer Fullname @i</label>
+                        <input asp-for="Movie_Producers[i].Producer.FullName" class="form-control" />
+                        <label>Producer Bio</label>
+                        <input asp-for="Movie_Producers[i].Producer.Bio" class="form-control" />
+                        <label>Producer ProfilePic</label>
+                        <input asp-for="Movie_Producers[i].Producer.ProfilePictureURL" class="form-control" />
+
+                        <span asp-validation-for="Movie_Producers[i].Producer.FullName" class="text-danger"></span>
+                        <span asp-validation-for="Movie_Producers[i].Producer.Bio" class="text-danger"></span>
+                        <span asp-validation-for="Movie_Producers[i].Producer.ProfilePictureURL" class="text-danger"></span>
+                    </div>
+                }
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
