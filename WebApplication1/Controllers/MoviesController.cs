@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
+using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace WebApplication1.Controllers
 {
@@ -19,15 +21,34 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        // GET: Movies
+        //GET MOVIES: INDEX
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Movie
-            .Include(m => m.Cinema)
-            .Include(m => m.Movie_Producers)
-            .ThenInclude(mp => mp.Producer)
-                .ThenInclude(mp => mp.Studio);
-            return View(await applicationDbContext.ToListAsync());
+            // Retrieve movie data from API
+            var movies = await GetMoviesFromAPI();
+
+            return View(movies);
+        }
+
+        private async Task<List<Movie>> GetMoviesFromAPI()
+        {
+            using (var client = new HttpClient())
+            {
+                var apiKey = "470821513db1ef1d834a642dd5133006";
+                var url = "https://api.themoviedb.org/3/discover/movie";
+                var queryString = "?include_adult=false&include_video=false&language=en-US&page=1&sort_by=vote_average.desc&without_genres=99,10755&vote_count.gte=200";
+                var requestUrl = $"{url}{queryString}&api_key={apiKey}";
+
+                var response = await client.GetAsync(requestUrl);
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var responseObj = JsonConvert.DeserializeObject<ApiResponse>(json);
+
+                var movies = responseObj?.Results ?? new List<Movie>();
+
+                return movies;
+            }
         }
 
         // GET: Movies/Details/5

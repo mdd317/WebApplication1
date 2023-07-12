@@ -65,12 +65,18 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Cinema.Name)
             </td>
-            <td>
-                @foreach (var mp in item.Movie_Producers)
-                   {
-                        @mp.Producer.FullName<br />
+                <td>
+                    @if (item.Movie_Producers != null)
+                    {
+                        foreach (var mp in item.Movie_Producers)
+                        {
+                            if (mp.Producer != null)
+                            {
+                                <p>@mp.Producer.FullName</p>
+                            }
+                        }
                     }
-            </td>
+                </td>
                 <td>
                     @foreach (var studio in item.Studios)
                     {

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Models
@@ -6,11 +7,17 @@ namespace WebApplication1.Models
     public class Movie
     {
         [Key]
+        [JsonProperty("id")]
         public int Id { get; set; }
 
+        [JsonProperty("title")]
         public string Name { get; set; }
+
+        [JsonProperty("overview")]
         public string Description { get; set; }
         public double Price { get; set; }
+
+        [JsonProperty("poster_path")]
         public string ImageURL { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
