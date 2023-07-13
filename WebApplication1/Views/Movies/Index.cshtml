@@ -6,12 +6,19 @@
 
 <h1>Index</h1>
 
+
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+@Html.ActionLink("Save API Data", "SaveDataFromAPI", "Movies")
+
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.original_language)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
@@ -19,31 +26,38 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Popularity)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Price)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ImageURL)
+                @Html.DisplayNameFor(model => model.release_date)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StartDate)
+                @Html.DisplayNameFor(model => model.original_title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EndDate)
+                @Html.DisplayNameFor(model => model.video)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.vote_average)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.vote_count)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Cinema)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Movie_Producers)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Studios)
-            </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.original_language)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
@@ -51,26 +65,37 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Popularity)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ImageURL)
+                @Html.DisplayFor(modelItem => item.release_date)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
+                @Html.DisplayFor(modelItem => item.original_title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
+                @Html.DisplayFor(modelItem => item.video)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Cinema.Name)
+                @Html.DisplayFor(modelItem => item.vote_average)
             </td>
             <td>
-                @foreach (var mp in item.Movie_Producers)
-                   {
-                        @mp.Producer.FullName<br />
+                @Html.DisplayFor(modelItem => item.vote_count)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Cinema.Description)
+            </td>
+                <td>
+                    @foreach (var mp in item.Movie_Producers)
+                    {
+                        @mp.Producer.FullName
+
+                        <br />
                     }
-            </td>
+                </td>
                 <td>
                     @foreach (var studio in item.Studios)
                     {
@@ -80,8 +105,6 @@
                         }
                     }
                 </td>
-            
-
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |

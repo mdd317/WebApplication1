@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using WebApplication1.Data;
 using WebApplication1.Models;
 
@@ -17,6 +18,61 @@ namespace WebApplication1.Controllers
         public MoviesController(ApplicationDbContext context)
         {
             _context = context;
+        }
+
+        // GET: API TO DB
+
+        public async Task<IActionResult> SaveDataFromAPI()
+        {
+            _context.Database.ExecuteSqlRaw("ALTER TABLE Movie NOCHECK CONSTRAINT FK_Movie_Cinemas_CinemaId");
+
+            // Retrieve data from the API
+            var apiData = await GetAPIData();
+
+            // Map API data to modified movie model
+            var movieData = MapAPIDataToModel(apiData);
+
+            // Save the data to the database
+            _context.Movie.AddRange(movieData);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", "Movies");
+        }
+
+        private async Task<dynamic> GetAPIData()
+        {
+            using (var client = new HttpClient())
+            {
+                var apiKey = "470821513db1ef1d834a642dd5133006";
+                var url = $"https://api.themoviedb.org/3/movie/popular?api_key={apiKey}";
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
+                var apiResponse = JsonConvert.DeserializeObject<dynamic>(content);
+
+                return apiResponse;
+            }
+        }
+
+        private List<Movie> MapAPIDataToModel(dynamic apiData)
+        {
+            // Map API data to modified movie model
+            var movieData = new List<Movie>();
+
+            foreach (var item in apiData.results)
+            {
+                var movie = new Movie
+                {
+                    Name = item.title,
+                    Description = item.overview,
+                    Popularity = item.popularity,
+
+                };
+
+                movieData.Add(movie);
+            }
+
+            return movieData;
         }
 
         // GET: Movies
@@ -135,9 +191,10 @@ namespace WebApplication1.Controllers
                     dbMovie.Name = movie.Name;
                     dbMovie.Description = movie.Description;
                     dbMovie.Price = movie.Price;
-                    dbMovie.ImageURL = movie.ImageURL;
-                    dbMovie.StartDate = movie.StartDate;
-                    dbMovie.EndDate = movie.EndDate;
+                    dbMovie.release_date = movie.release_date;
+                    dbMovie.video = movie.video;
+                    dbMovie.vote_average = movie.vote_average;
+                    dbMovie.vote_count = movie.vote_count;
                     dbMovie.CinemaId = movie.CinemaId;
 
                     for (var i = 0; i < movie.Movie_Producers.Count; i++)
