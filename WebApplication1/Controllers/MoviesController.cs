@@ -54,17 +54,13 @@ namespace WebApplication1.Controllers
         // GET: Movies/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Movie == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var movie = await _context.Movie
-                .Include(m => m.Cinema)
-                .Include(m => m.Movie_Producers)
-                    .ThenInclude(mp => mp.Producer)
-                    .ThenInclude(mp => mp.Studio)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            // Fetch movie details from the API based on the ID
+            var movie = await GetMovieDetailsFromAPI(id.Value);
 
             if (movie == null)
             {
@@ -72,6 +68,24 @@ namespace WebApplication1.Controllers
             }
 
             return View(movie);
+        }
+
+        private async Task<Movie> GetMovieDetailsFromAPI(int id)
+        {
+            using (var client = new HttpClient())
+            {
+                var apiKey = "470821513db1ef1d834a642dd5133006";
+                var url = $"https://api.themoviedb.org/3/movie/{id}?language=en-US";
+                var requestUrl = $"{url}&api_key={apiKey}";
+
+                var response = await client.GetAsync(requestUrl);
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var movie = JsonConvert.DeserializeObject<Movie>(json);
+
+                return movie;
+            }
         }
 
         // GET: Movies/Create
