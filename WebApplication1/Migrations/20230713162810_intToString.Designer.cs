@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Data;
 
@@ -11,9 +12,11 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230713162810_intToString")]
+    partial class intToString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,7 +47,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cinemas", (string)null);
+                    b.ToTable("Cinemas");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Employees", b =>
@@ -70,7 +73,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("CinemaId");
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Movie", b =>
@@ -102,6 +105,10 @@ namespace WebApplication1.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("original_title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("release_date")
                         .HasColumnType("datetime2");
 
@@ -118,7 +125,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("CinemaId");
 
-                    b.ToTable("Movie", (string)null);
+                    b.ToTable("Movie");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Movie_Producer", b =>
@@ -141,7 +148,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("ProducerId");
 
-                    b.ToTable("Movie_Producers", (string)null);
+                    b.ToTable("Movie_Producers");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Producer", b =>
@@ -172,7 +179,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("StudioId");
 
-                    b.ToTable("Producers", (string)null);
+                    b.ToTable("Producers");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Studio", b =>
@@ -193,7 +200,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Studios", (string)null);
+                    b.ToTable("Studios");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Employees", b =>

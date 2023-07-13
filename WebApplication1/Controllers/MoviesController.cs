@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using WebApplication1.Data;
 using WebApplication1.Models;
@@ -31,6 +32,13 @@ namespace WebApplication1.Controllers
 
             // Map API data to modified movie model
             var movieData = MapAPIDataToModel(apiData);
+
+            foreach (var movie in movieData)
+            {
+                movie.Cinema = null; // Set Cinema to NULL
+                movie.Movie_Producers = null; // Set Movie_Producers to NULL
+                movie.Studios = null; // Set Studios to NULL
+            }
 
             // Save the data to the database
             _context.Movie.AddRange(movieData);
@@ -66,6 +74,12 @@ namespace WebApplication1.Controllers
                     Name = item.title,
                     Description = item.overview,
                     Popularity = item.popularity,
+                    original_language = item.original_language,
+                    release_date = item.release_date,
+                    video = item.video,
+                    vote_average = item.vote_average,
+                    vote_count = item.vote_count,
+
 
                 };
 
@@ -122,7 +136,7 @@ namespace WebApplication1.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,ImageURL,StartDate,EndDate,CinemaId,StudioId")] Movie movie)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,original_language,release_date,video,vote_average, vote_count,CinemaId,StudioId")] Movie movie)
         {
             if (ModelState.IsValid)
             {
@@ -167,7 +181,7 @@ namespace WebApplication1.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,ImageURL,StartDate,EndDate,CinemaId, StudioId,Movie_Producers")] Movie movie)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,original_language,release_date,video,vote_average, vote_count,CinemaId,StudioId, Movie_Producers")] Movie movie)
         {
             if (id != movie.Id)
             {

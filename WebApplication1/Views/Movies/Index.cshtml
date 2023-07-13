@@ -35,9 +35,6 @@
                 @Html.DisplayNameFor(model => model.release_date)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.original_title)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.video)
             </th>
             <th>
@@ -48,6 +45,12 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Cinema)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Movie_Producers)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Studios)
             </th>
             <th></th>
         </tr>
@@ -74,9 +77,6 @@
                 @Html.DisplayFor(modelItem => item.release_date)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.original_title)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.video)
             </td>
             <td>
@@ -86,7 +86,7 @@
                 @Html.DisplayFor(modelItem => item.vote_count)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Cinema.Description)
+                @Html.DisplayFor(modelItem => item.Cinema.Name)
             </td>
                 <td>
                     @foreach (var mp in item.Movie_Producers)
