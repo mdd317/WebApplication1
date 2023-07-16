@@ -21,23 +21,27 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        // GET: API TO DB
-
-        public async Task<IActionResult> SaveDataFromAPI()
+        // GET: Movies
+        public async Task<IActionResult> Index()
         {
-            _context.Database.ExecuteSqlRaw("ALTER TABLE Movie NOCHECK CONSTRAINT FK_Movie_Cinemas_CinemaId");
-
-            // Retrieve data from the API
+            // Retrieve movie data from API
             var apiData = await GetAPIData();
+            var apiMovies = MapAPIDataToModel(apiData);
 
-            // Map API data to modified movie model
-            var movieData = MapAPIDataToModel(apiData);
+            // Retrieve movies from your database
+            var databaseMovies = await _context.Movie
+                .Include(m => m.Cinema)
+                .Include(m => m.Movie_Producers)
+                .ThenInclude(mp => mp.Producer)
+                .ThenInclude(mp => mp.Studio)
+                .ToListAsync();
 
-            // Save the data to the database
-            _context.Movie.AddRange(movieData);
-            await _context.SaveChangesAsync();
+            // Combine the movies from API and database
+            var allMovies = new List<Movie>();
+            allMovies.AddRange(apiMovies);
+            allMovies.AddRange(databaseMovies);
 
-            return RedirectToAction("Index", "Movies");
+            return View(allMovies);
         }
 
         private async Task<dynamic> GetAPIData()
@@ -57,7 +61,6 @@ namespace WebApplication1.Controllers
 
         private List<Movie> MapAPIDataToModel(dynamic apiData)
         {
-            // Map API data to modified movie model
             var movieData = new List<Movie>();
 
             foreach (var item in apiData.results)
@@ -72,7 +75,6 @@ namespace WebApplication1.Controllers
                     video = item.video,
                     vote_average = item.vote_average,
                     vote_count = item.vote_count,
-
                 };
 
                 movieData.Add(movie);
@@ -81,26 +83,31 @@ namespace WebApplication1.Controllers
             return movieData;
         }
 
-        // GET: Movies
-        public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = _context.Movie
-            .Include(m => m.Cinema)
-            .Include(m => m.Movie_Producers)
-            .ThenInclude(mp => mp.Producer)
-                .ThenInclude(mp => mp.Studio);
-            return View(await applicationDbContext.ToListAsync());
-        }
 
         // GET: Movies/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Movie == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var movie = await _context.Movie
+            var movie = await GetMovieDetails(id.Value);
+
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            return View(movie);
+        }
+
+        private async Task<Movie> GetMovieDetails(int id)
+        {
+            Movie movie = null;
+
+            // Fetch movie details from the database
+            movie = await _context.Movie
                 .Include(m => m.Cinema)
                 .Include(m => m.Movie_Producers)
                     .ThenInclude(mp => mp.Producer)
@@ -109,10 +116,38 @@ namespace WebApplication1.Controllers
 
             if (movie == null)
             {
-                return NotFound();
+                // Fetch movie details from the API based on the ID
+                movie = await GetMovieDetailsFromAPI(id);
             }
 
-            return View(movie);
+            return movie;
+        }
+
+        private async Task<Movie> GetMovieDetailsFromAPI(int id)
+        {
+            using (var client = new HttpClient())
+            {
+                var apiKey = "470821513db1ef1d834a642dd5133006";
+                var url = $"https://api.themoviedb.org/3/movie/{id}?language=en-US";
+                var requestUrl = $"{url}&api_key={apiKey}";
+
+                var response = await client.GetAsync(requestUrl);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var movie = JsonConvert.DeserializeObject<Movie>(json);
+
+                    // Customize the movie object from the API response if needed
+                    // Example: movie.IsFromAPI = true;
+
+                    return movie;
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
 
         // GET: Movies/Create
