@@ -32,7 +32,7 @@ namespace WebApplication1.Controllers
             var apiData = await GetAPIData();
             var apiMovies = MapAPIDataToModel(apiData);
 
-            // Retrieve movies from your database
+            // Retrieve movies from database
             var databaseMovies = await _context.Movie
                 .Include(m => m.Cinema)
                 .Include(m => m.Movie_Producers)
@@ -96,7 +96,7 @@ namespace WebApplication1.Controllers
                 return NotFound();
             }
 
-            // Retrieve movies from your database and API
+            // Retrieve movies from database and API
             var allMovies = await GetAllMovies();
 
             // Find the movie with the specified ID
