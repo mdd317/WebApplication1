@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
+using NuGet.ContentModel;
 using WebApplication1.Data;
 using WebApplication1.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebApplication1.Controllers
 {
@@ -92,7 +96,11 @@ namespace WebApplication1.Controllers
                 return NotFound();
             }
 
-            var movie = await GetMovieDetails(id.Value);
+            // Retrieve movies from your database and API
+            var allMovies = await GetAllMovies();
+
+            // Find the movie with the specified ID
+            var movie = allMovies.FirstOrDefault(m => m.Id == id);
 
             if (movie == null)
             {
@@ -102,53 +110,27 @@ namespace WebApplication1.Controllers
             return View(movie);
         }
 
-        private async Task<Movie> GetMovieDetails(int id)
+        private async Task<List<Movie>> GetAllMovies()
         {
-            Movie movie = null;
+            // Retrieve movie data from API
+            var apiData = await GetAPIData();
+            var apiMovies = MapAPIDataToModel(apiData);
 
-            // Fetch movie details from the database
-            movie = await _context.Movie
+            // Retrieve movies from your database
+            var databaseMovies = await _context.Movie
                 .Include(m => m.Cinema)
                 .Include(m => m.Movie_Producers)
-                    .ThenInclude(mp => mp.Producer)
-                    .ThenInclude(mp => mp.Studio)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .ThenInclude(mp => mp.Producer)
+                .ThenInclude(mp => mp.Studio)
+                .ToListAsync();
 
-            if (movie == null)
-            {
-                // Fetch movie details from the API based on the ID
-                movie = await GetMovieDetailsFromAPI(id);
-            }
-
-            return movie;
+            // Combine the movies from API and database
+            var allMovies = new List<Movie>();
+            allMovies.AddRange(apiMovies);
+            allMovies.AddRange(databaseMovies);
+            return allMovies;
         }
 
-        private async Task<Movie> GetMovieDetailsFromAPI(int id)
-        {
-            using (var client = new HttpClient())
-            {
-                var apiKey = "470821513db1ef1d834a642dd5133006";
-                var url = $"https://api.themoviedb.org/3/movie/{id}?language=en-US";
-                var requestUrl = $"{url}&api_key={apiKey}";
-
-                var response = await client.GetAsync(requestUrl);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var movie = JsonConvert.DeserializeObject<Movie>(json);
-
-                    // Customize the movie object from the API response if needed
-                    // Example: movie.IsFromAPI = true;
-
-                    return movie;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
 
         // GET: Movies/Create
         public IActionResult Create()
