@@ -33,13 +33,6 @@ namespace WebApplication1.Controllers
             // Map API data to modified movie model
             var movieData = MapAPIDataToModel(apiData);
 
-            foreach (var movie in movieData)
-            {
-                movie.Cinema = null; // Set Cinema to NULL
-                movie.Movie_Producers = null; // Set Movie_Producers to NULL
-                movie.Studios = null; // Set Studios to NULL
-            }
-
             // Save the data to the database
             _context.Movie.AddRange(movieData);
             await _context.SaveChangesAsync();
@@ -79,7 +72,6 @@ namespace WebApplication1.Controllers
                     video = item.video,
                     vote_average = item.vote_average,
                     vote_count = item.vote_count,
-
 
                 };
 
